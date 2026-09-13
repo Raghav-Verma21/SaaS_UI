@@ -1,0 +1,86 @@
+/**
+ * Global theme tokens and reusable UI classes.
+ * Import from app/globals.css — do not import in page components.
+ */
+
+@layer components {
+  /* Cards */
+  .ui-card {
+    @apply rounded-2xl border border-border bg-white shadow-sm;
+  }
+
+  .ui-card-header {
+    @apply flex flex-col items-start gap-2 border-b border-border px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:px-5 sm:py-4 lg:px-6;
+  }
+
+  .ui-card-header--stacked {
+    @apply sm:flex-col sm:items-start;
+  }
+
+  .ui-card-title {
+    @apply text-lg font-semibold text-navy;
+  }
+
+  .ui-card-link {
+    @apply text-sm font-semibold text-brand-blue hover:underline;
+  }
+
+  /* Tables */
+  .ui-table-wrap {
+    @apply overflow-x-auto;
+  }
+
+  .ui-table {
+    @apply min-w-full text-left text-sm;
+  }
+
+  .ui-table-head {
+    @apply border-b border-border bg-brand-surface/60 text-muted-foreground;
+  }
+
+  .ui-table-th {
+    @apply px-3 py-3 text-center font-medium sm:px-5 lg:px-6;
+  }
+
+  .ui-table-td {
+    @apply px-3 py-3 sm:px-5 sm:py-4 lg:px-6;
+  }
+
+  .ui-table-row {
+    @apply border-b border-border last:border-b-0 hover:bg-brand-surface/40;
+  }
+
+  .ui-table-empty {
+    @apply px-5 py-10 text-center text-muted-foreground sm:px-6;
+  }
+
+  .ui-table-error {
+    @apply px-5 py-10 text-center text-red-600 sm:px-6;
+  }
+
+  /* Status badges */
+  .status-badge {
+    @apply inline-flex items-center justify-center rounded-full px-3 py-1 text-center text-xs font-semibold;
+  }
+
+  .status-badge--validated {
+    @apply bg-green-50 text-green-700;
+  }
+
+  .status-badge--discrepancies {
+    @apply bg-orange-50 text-orange-700;
+  }
+
+  .status-badge--pending {
+    @apply bg-violet-50 text-violet-700;
+  }
+
+  /* Marketing panel decorations */
+  .marketing-blob-top {
+    @apply pointer-events-none absolute -top-24 -right-24 size-72 rounded-full bg-brand-light/60;
+  }
+
+  .marketing-blob-bottom {
+    @apply pointer-events-none absolute -bottom-32 -left-20 size-80 rounded-full bg-brand-light/40;
+  }
+}

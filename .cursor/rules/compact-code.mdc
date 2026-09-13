@@ -1,0 +1,25 @@
+---
+description: Write minimal, compact code — avoid verbosity and unnecessary abstractions
+alwaysApply: true
+---
+
+# Compact Code
+
+- **Minimize LOC**: Prefer the smallest correct solution. Do not add files, wrappers, or helpers for one-off use.
+- **Reuse before writing**: Extract shared logic only when duplicated 2+ times.
+- **No ceremony**: Skip redundant comments, verbose types, and defensive code for impossible cases.
+- **Inline over abstract**: Small logic stays inline; avoid single-use components/hooks.
+- **Lean JSX**: Use maps, ternaries, and early returns instead of nested condition trees.
+- **Match existing style**: Compact does not mean cryptic — keep names clear and diffs focused.
+
+```tsx
+// ❌ Verbose
+function getUserDisplayFromEmail(email: string) {
+  const label = email ? email.split("@")[0] : "User";
+  ...
+}
+useEffect(() => { setUserDisplay(getUserDisplayFromEmail(email)); }, []);
+
+// ✅ Compact — shared hook, one line at call site
+const user = useDashboardUserDisplay();
+```

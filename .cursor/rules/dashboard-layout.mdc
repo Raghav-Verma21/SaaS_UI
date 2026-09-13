@@ -1,0 +1,44 @@
+---
+description: Dashboard page layout — section stacking, card grid, spacing rhythm
+globs: components/dashboard/**,styles/pages/dashboard.css
+alwaysApply: false
+---
+
+# Dashboard Layout
+
+Basic view logic for dashboard and LC tab pages. Follow when adding or changing dashboard sections.
+
+## Page stack (`dashboard-main`, `lc-page`)
+
+- Vertical stack only — no `mt-auto` on sections (avoids empty space when content is short).
+- Consistent rhythm: `gap-4` (16px) on mobile, `gap-6` (24px) from `sm:` up.
+- Every section: `w-full min-w-0` so cards fill the content area and shrink correctly.
+
+## Summary card grid (`dashboard-summary-cards`)
+
+Used on Dashboard (Required Documents + Compliance) and LC tab insight cards.
+
+| Viewport | Layout |
+|----------|--------|
+| &lt; md (768px) | Single column — cards full width, stacked |
+| md+ | Two equal columns — `grid-cols-2`, same gap as page stack |
+
+- Cards use `h-full flex flex-col` so paired cards match height.
+- Card body uses `flex-1` so inner content fills the card.
+- Tables live inside `ui-table-wrap` for horizontal scroll; never force card overflow.
+
+## Compliance report card
+
+- Below `md`: metrics above chart (stacked).
+- `md+`: row layout — metrics ~75%, chart ~25%.
+- Footer CTA stays at the bottom of the card via flex column on `.dashboard-compliance-report`.
+
+## Section order (Dashboard)
+
+1. Recent LC table (full width)
+2. Summary card grid (2 columns from md)
+3. How it works (full width)
+
+## Breakpoints to verify
+
+320px, 768px, 1024px, 1280px — especially split-screen / narrowed laptop widths.

@@ -1,0 +1,60 @@
+/**
+ * Auth pages (login, signup) styles.
+ * Imported from app/globals.css
+ */
+
+.auth-page {
+  @apply grid min-h-screen lg:grid-cols-2;
+}
+
+.auth-form-panel {
+  @apply order-1 flex items-center justify-center bg-white px-5 py-8 sm:px-8 sm:py-10 lg:order-2 lg:px-12 lg:py-12;
+}
+
+.auth-marketing-panel {
+  @apply relative order-2 flex min-h-0 flex-col overflow-hidden bg-brand-surface px-5 py-8 sm:px-8 sm:py-10 lg:order-1 lg:px-12 lg:py-12;
+}
+
+.auth-marketing-panel--signup {
+  @apply relative order-2 flex min-h-0 flex-col overflow-hidden bg-[#F7F9FC] px-5 py-8 sm:px-8 sm:py-10 lg:order-1 lg:px-12 lg:py-12;
+}
+
+.auth-marketing-content {
+  @apply relative z-10 mt-6 flex flex-1 flex-col gap-8 lg:mt-8 lg:flex-row lg:items-center lg:justify-between lg:gap-10;
+}
+
+.auth-marketing-headline {
+  @apply text-3xl leading-tight font-bold tracking-tight text-navy sm:text-4xl lg:text-[2.5rem] lg:leading-[1.15];
+}
+
+.auth-marketing-headline--signup {
+  @apply text-3xl leading-tight font-bold tracking-tight text-navy sm:text-4xl lg:text-[3.5rem] lg:leading-[1.15];
+}
+
+.auth-marketing-subtext {
+  @apply mt-4 text-sm leading-relaxed text-muted-foreground sm:text-base;
+}
+
+.auth-feature-list {
+  @apply mt-6 hidden space-y-5 md:block lg:mt-8;
+}
+
+.auth-feature-item {
+  @apply flex gap-3;
+}
+
+.auth-feature-icon {
+  @apply flex size-10 shrink-0 items-center justify-center rounded-lg bg-brand-light text-brand-blue;
+}
+
+.auth-feature-title {
+  @apply text-sm font-semibold text-navy;
+}
+
+.auth-feature-description {
+  @apply mt-0.5 text-sm text-muted-foreground;
+}
+
+.auth-form-panel--signup {
+  @apply flex w-full items-center justify-center bg-white px-4 py-8 sm:px-6 lg:px-8 lg:py-10;
+}

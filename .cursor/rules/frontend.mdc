@@ -1,0 +1,93 @@
+---
+description: Frontend standards for DocuCredit AI — mobile-first, performant, semantic
+globs: **/*.{tsx,ts,css}
+alwaysApply: false
+---
+
+# Frontend Standards
+
+See also: **compact-code** rule — prefer minimal, focused diffs. **dashboard-layout** rule — page stack, card grid, spacing.
+
+## Mobile-First Responsive Design
+
+- Write base styles for mobile, then enhance with `sm:`, `md:`, `lg:`, `xl:` breakpoints.
+- Test layouts at 320px, 768px, and 1280px minimum widths.
+- Use Tailwind CSS utilities; avoid custom CSS unless a pattern is reused 3+ times.
+- Navigation must collapse to a Sheet drawer below `lg` breakpoint.
+
+```tsx
+// ✅ GOOD — mobile-first
+<div className="flex flex-col gap-6 md:flex-row md:gap-12">
+
+// ❌ BAD — desktop-first overrides
+<div className="flex flex-row max-md:flex-col">
+```
+
+## Performance & CLS Prevention
+
+- Use `next/image` for all raster images with explicit `width`, `height`, and `sizes`.
+- Use `next/font` for fonts; never load fonts via `<link>` tags.
+- Reserve space for dynamic content to prevent layout shift.
+- Prefer CSS/SVG for icons and UI mockups over heavy image assets.
+- Mark client-only components with `"use client"` only when necessary.
+
+```tsx
+// ✅ GOOD
+import Image from "next/image";
+<Image src="/hero.png" alt="Dashboard" width={800} height={600} priority sizes="(max-width: 768px) 100vw, 50vw" />
+```
+
+## TypeScript & Component Structure
+
+- Use strict TypeScript; no `any` unless unavoidable with a comment explaining why.
+- Co-locate landing page sections in `components/landing/`.
+- Export one primary component per file; use named exports for sub-components.
+- Props interfaces should be explicit and exported when reused.
+
+## Semantic HTML & Accessibility
+
+- Use `<header>`, `<nav>`, `<main>`, `<section>`, `<footer>` landmarks.
+- Every interactive element must be keyboard-accessible.
+- Images and icons need descriptive `alt` text or `aria-hidden="true"` for decorative elements.
+- Maintain WCAG AA color contrast ratios.
+
+## Branding
+
+- Import product name and copy from `@/lib/brand` — never hardcode the product name in components.
+- Use `BRAND.name`, `BRAND.tagline`, and helper functions like `brandCopyright()` for all user-facing branding.
+
+```tsx
+// ✅ GOOD
+import { BRAND } from "@/lib/brand";
+<h1>{BRAND.tagline}</h1>
+
+// ❌ BAD
+<h1>DocuCredit AI</h1>
+```
+
+## API & Security
+
+- Browser calls **same-origin** `/api/*` only — use `apiClient` / helpers from `@/lib/api`.
+- Backend URL is configured via **`API_PROXY_TARGET`** (server-only). Never use `NEXT_PUBLIC_` for API URLs.
+- `API_PROXY_TARGET` is **required in production** (enforced at build time).
+- All `fetch` calls use `credentials: "same-origin"`.
+
+```tsx
+// ✅ GOOD
+import { login } from "@/lib/api";
+await login({ email, password }); // → POST /api/auth/login (proxied server-side)
+
+// ❌ BAD — exposes backend URL in client bundle, requires CORS
+fetch("https://api.example.com/api/auth/login", { ... });
+```
+
+
+- UI primitives live in `components/ui/`; do not modify Radix behavior without reason.
+- Use `cn()` from `@/lib/utils` for conditional class merging.
+- Extend variants via `class-variance-authority`, not inline style objects.
+
+## Dashboard CSS (`styles/pages/dashboard.css`)
+
+- Every `@apply` must live inside a selector block `{ ... }` — orphaned `@apply` lines cause `Missing opening {` build failures.
+- After fixing CSS errors, restart dev server and run `rm -rf .next` if Turbopack still reports stale errors.
+- Prefer plain CSS for `calc()` / complex values instead of arbitrary `@apply` utilities when builds fail mysteriously.
