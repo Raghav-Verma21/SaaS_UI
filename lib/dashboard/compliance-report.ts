@@ -1,6 +1,12 @@
+import type { LcDocument } from "@/lib/api/letter-of-credit";
+import { collectLcFindings, countFindings } from "@/lib/dashboard/lc-report-findings";
+
 export interface ComplianceReportSummary {
+  all: number;
   discrepancies: number;
   warnings: number;
+  passed: number;
+  other: number;
   overallCompliancePercent: number;
 }
 
@@ -18,39 +24,55 @@ export const COLORS = {
   green: "#22c55e",
   amber: "#f59e0b",
   red: "#ef4444",
+  grey: "#94a3b8",
   track: "#e2e8f0",
 } as const;
 
-/** Placeholder until API-driven compliance metrics are available. */
-export function getComplianceReportSummary(_lcId: string | null): ComplianceReportSummary {
-  return { discrepancies: 0, warnings: 0, overallCompliancePercent: 100 };
+export function getComplianceReportSummary(lc: LcDocument | null): ComplianceReportSummary {
+  if (!lc) {
+    return {
+      all: 0,
+      discrepancies: 0,
+      warnings: 0,
+      passed: 0,
+      other: 0,
+      overallCompliancePercent: 0,
+    };
+  }
+
+  const counts = countFindings(collectLcFindings(lc));
+  return {
+    all: counts.all,
+    discrepancies: counts.discrepancy,
+    warnings: counts.warning,
+    passed: counts.passed,
+    other: counts.other,
+    overallCompliancePercent:
+      counts.all === 0 ? 0 : Math.round((counts.passed / counts.all) * 100),
+  };
 }
 
 export function getComplianceDonutSegments(
   summary: ComplianceReportSummary
 ): ComplianceDonutSegment[] {
-  const { discrepancies, warnings, overallCompliancePercent } = summary;
+  const { all, passed, warnings, discrepancies, other } = summary;
   const C = DONUT_CIRCUMFERENCE;
 
-  if (discrepancies === 0 && warnings === 0) {
-    return [{ color: COLORS.green, dashArray: `${C}`, dashOffset: 0 }];
+  if (all === 0) {
+    return [{ color: COLORS.track, dashArray: `${C}`, dashOffset: 0 }];
   }
-
-  const compliant = Math.max(0, Math.min(100, overallCompliancePercent)) / 100;
-  const warning = warnings > 0 ? Math.min(0.15, warnings * 0.05) : 0;
-  const discrepancy = discrepancies > 0 ? Math.min(0.25, discrepancies * 0.08) : 0;
-  const adjusted = compliant + Math.max(0, 1 - compliant - warning - discrepancy);
 
   let offset = 0;
   return [
-    { color: COLORS.green, portion: adjusted },
-    { color: COLORS.amber, portion: warning },
-    { color: COLORS.red, portion: discrepancy },
+    { color: COLORS.green, n: passed },
+    { color: COLORS.grey, n: other },
+    { color: COLORS.amber, n: warnings },
+    { color: COLORS.red, n: discrepancies },
   ]
-    .filter((s) => s.portion > 0)
-    .map((s) => {
-      const length = C * s.portion;
-      const seg = { color: s.color, dashArray: `${length} ${C}`, dashOffset: -offset };
+    .filter((part) => part.n > 0)
+    .map((part) => {
+      const length = C * (part.n / all);
+      const seg = { color: part.color, dashArray: `${length} ${C}`, dashOffset: -offset };
       offset += length;
       return seg;
     });

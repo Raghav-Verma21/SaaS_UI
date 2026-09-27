@@ -1,31 +1,48 @@
 "use client";
 
+import Link from "next/link";
+import { useMemo, useState } from "react";
 import { DownloadIcon } from "lucide-react";
 
 import { ComplianceDonutChart } from "@/components/dashboard/compliance-donut-chart";
-import { Button } from "@/components/ui/button";
+import { ComplianceFindingsStats } from "@/components/dashboard/compliance-findings-stats";
+import { ApiError } from "@/lib/api";
+import { getComplianceReport } from "@/lib/api/compliance-report";
 import type { LcDocument } from "@/lib/api/letter-of-credit";
 import { getComplianceReportSummary } from "@/lib/dashboard/compliance-report";
+import { collectLcFindings, countFindings } from "@/lib/dashboard/lc-report-findings";
 
-function Metric({ label, value, tone }: { label: string; value: number; tone: "discrepancy" | "warning" }) {
-  return (
-    <div className="dashboard-compliance-report__metric">
-      <span
-        className={`dashboard-compliance-report__metric-label dashboard-compliance-report__metric-label--${tone}`}
-      >
-        {label}
-      </span>
-      <span
-        className={`dashboard-compliance-report__metric-value dashboard-compliance-report__metric-value--${tone}`}
-      >
-        {value}
-      </span>
-    </div>
-  );
+interface ComplianceReportCardProps {
+  selectedLc: LcDocument | null;
+  companyId: string | null;
 }
 
-export function ComplianceReportCard({ selectedLc }: { selectedLc: LcDocument | null }) {
-  const summary = getComplianceReportSummary(selectedLc?.id ?? null);
+export function ComplianceReportCard({ selectedLc, companyId }: ComplianceReportCardProps) {
+  const [downloading, setDownloading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const findings = useMemo(
+    () => (selectedLc ? collectLcFindings(selectedLc) : []),
+    [selectedLc]
+  );
+  const counts = useMemo(() => countFindings(findings), [findings]);
+  const summary = useMemo(() => getComplianceReportSummary(selectedLc), [selectedLc]);
+
+  async function handleDownload() {
+    if (!companyId || !selectedLc) return;
+    setDownloading(true);
+    setError(null);
+    try {
+      const res = await getComplianceReport(companyId, selectedLc.id);
+      const url = res.signedUrlVO?.signedUrl;
+      if (!url) throw new ApiError("Download link unavailable.", 400);
+      window.open(url, "_blank", "noopener,noreferrer");
+    } catch (err) {
+      setError(err instanceof ApiError ? err.message : "Unable to download the compliance report.");
+    } finally {
+      setDownloading(false);
+    }
+  }
 
   return (
     <article className="dashboard-summary-card ui-card">
@@ -43,26 +60,45 @@ export function ComplianceReportCard({ selectedLc }: { selectedLc: LcDocument | 
           </p>
         ) : (
           <div className="dashboard-compliance-report">
-            <div className="dashboard-compliance-report__main">
-              <div className="dashboard-compliance-report__metrics">
-                <Metric label="Discrepancies" value={summary.discrepancies} tone="discrepancy" />
-                <Metric label="Warnings" value={summary.warnings} tone="warning" />
-              </div>
-              <div className="dashboard-compliance-report__chart-panel">
+            <ComplianceFindingsStats counts={counts} compact />
+
+            {findings.length === 0 ? (
+              <p className="dashboard-summary-card__empty">
+                Upload trade documents and run LC cross-check to see findings here.
+              </p>
+            ) : (
+              <div className="dashboard-compliance-report__chart-panel dashboard-compliance-report__chart-panel--inline">
                 <h3 className="dashboard-compliance-report__chart-title">Overall compliance</h3>
                 <ComplianceDonutChart summary={summary} />
-                <p className="dashboard-compliance-report__recommendation">
-                  Based on our review, we recommend addressing any noted items before submission
-                  to help ensure a smoother bank review process.
-                </p>
               </div>
-            </div>
+            )}
+
             <div className="dashboard-compliance-report__footer">
-              <Button type="button" className="w-full gap-2 sm:w-auto" size="sm">
-                <DownloadIcon aria-hidden="true" />
-                Download Compliance Report
-              </Button>
+              <button
+                type="button"
+                className="reports-download"
+                disabled={downloading || !companyId || findings.length === 0}
+                aria-label="Download Excel report"
+                onClick={() => void handleDownload()}
+              >
+                <DownloadIcon className="size-5" aria-hidden="true" />
+                <span className="reports-download__label">
+                  {downloading ? "Preparing..." : "Download Excel"}
+                </span>
+              </button>
+              <Link
+                href={`/reports?lc=${selectedLc.id}`}
+                className="dashboard-compliance-report__view-link"
+              >
+                View full report
+              </Link>
             </div>
+
+            {error && (
+              <p className="lc-upload-hero__error" role="alert">
+                {error}
+              </p>
+            )}
           </div>
         )}
       </div>

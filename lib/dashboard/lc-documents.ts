@@ -150,6 +150,7 @@ export function mapLcDocumentToRow(document: LCDocumentListItem): LcDocument {
     issueDate: pickIssueDate(document, semantic),
     expiryDate: formatDate(document.expiryDate),
     lastShipmentDate: formatDate(document.lastShipmentDate),
+    lcCreatedAt: first(document.lcCreatedAt),
     jobStatus: first(document.status),
     status: mapStatus(document.parsedData),
     requiredDocuments: mapRequiredDocuments(document.requiredDocuments),
@@ -158,12 +159,22 @@ export function mapLcDocumentToRow(document: LCDocumentListItem): LcDocument {
   };
 }
 
-export async function fetchCompanyLetterOfCredits(
-  companyId: string,
-  limit: number | null = null
-): Promise<LcDocument[]> {
-  const response = await getCompanyLetterOfCredits(companyId, limit);
+export async function fetchCompanyLetterOfCredits(companyId: string): Promise<LcDocument[]> {
+  const response = await getCompanyLetterOfCredits(companyId);
   return (response.documents ?? []).map(mapLcDocumentToRow);
+}
+
+function parseCreatedAtMs(value: string) {
+  if (!value || value === EMPTY) return 0;
+  const ms = Date.parse(value);
+  return Number.isNaN(ms) ? 0 : ms;
+}
+
+/** Newest uploads first — used for dashboard recent LC table. */
+export function pickRecentLetterOfCredits(documents: LcDocument[], limit: number) {
+  return [...documents]
+    .sort((a, b) => parseCreatedAtMs(b.lcCreatedAt) - parseCreatedAtMs(a.lcCreatedAt))
+    .slice(0, limit);
 }
 
 export function uploadCompanyLetterOfCredit(companyId: string, file: File) {

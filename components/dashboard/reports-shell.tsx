@@ -4,17 +4,15 @@ import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 
 import { DashboardAppShell } from "@/components/dashboard/dashboard-app-shell";
-import { DocumentInsightCards } from "@/components/dashboard/document-insight-cards";
 import { DocumentsEmptyHero } from "@/components/dashboard/documents-empty-hero";
-import { HowItWorksSection } from "@/components/dashboard/how-it-works-section";
+import { ReportsFindingsCard } from "@/components/dashboard/reports-findings-card";
 import { useAuth } from "@/lib/auth/auth-context";
 import { useCompanyLcs } from "@/lib/dashboard/use-company-lcs";
 import { useDashboardUserDisplay } from "@/lib/dashboard/use-dashboard-user";
 
-export function DocumentsShell() {
+export function ReportsShell() {
   const searchParams = useSearchParams();
   const lcParam = searchParams.get("lc");
-  const docParam = searchParams.get("doc");
   const { companyId } = useAuth();
   const user = useDashboardUserDisplay();
   const {
@@ -24,9 +22,7 @@ export function DocumentsShell() {
     setSelectedId,
     isLoading,
     error,
-    resolveDocJobStatus,
     handleLcUploadComplete,
-    handleDocUploadComplete,
   } = useCompanyLcs(companyId, null);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const showEmpty = !isLoading && documents.length === 0 && !error;
@@ -38,17 +34,17 @@ export function DocumentsShell() {
 
   return (
     <DashboardAppShell
-      title="Documents"
+      title="Reports"
       userLabel={user.label}
       userInitials={user.initials}
       isUploadDialogOpen={isUploadDialogOpen}
       onUploadDialogOpenChange={setIsUploadDialogOpen}
       onUploadSuccess={handleLcUploadComplete}
     >
-      <div className="documents-page">
-        <header className="documents-page__intro">
-          <p className="documents-page__subtitle">
-            Upload trade documents to validate compliance against your Letter of Credit.
+      <div className="reports-page">
+        <header className="reports-page__intro">
+          <p className="reports-page__subtitle">
+            Review cross-check findings across all trade documents for the selected Letter of Credit.
           </p>
         </header>
 
@@ -56,21 +52,17 @@ export function DocumentsShell() {
           <DocumentsEmptyHero onUploadLcClick={() => setIsUploadDialogOpen(true)} />
         ) : (
           selectedLc && (
-            <DocumentInsightCards
+            <ReportsFindingsCard
               key={selectedLc.id}
               lc={selectedLc}
               allLcs={documents}
               selectedLcId={selectedId}
               onSelectLc={setSelectedId}
               selectorDisabled={isLoading || !!error}
-              initialDocName={docParam}
-              onUploadComplete={handleDocUploadComplete}
-              resolveDocJobStatus={resolveDocJobStatus}
+              companyId={companyId}
             />
           )
         )}
-
-        <HowItWorksSection />
       </div>
     </DashboardAppShell>
   );

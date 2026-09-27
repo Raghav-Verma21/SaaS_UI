@@ -34,7 +34,7 @@ export function DashboardShell() {
         onSelectLc={setSelectedId}
         resolveLcJobStatus={resolveLcJobStatus}
       />
-      <DashboardSummaryCards selectedLc={selectedLc} />
+      <DashboardSummaryCards selectedLc={selectedLc} companyId={companyId} />
       <HowItWorksSection />
     </DashboardAppShell>
   );

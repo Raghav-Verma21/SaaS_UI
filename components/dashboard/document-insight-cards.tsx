@@ -1,16 +1,21 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { FileTextIcon, InfoIcon, ShieldCheckIcon, UploadIcon } from "lucide-react";
+import { FileTextIcon, ShieldCheckIcon, UploadIcon } from "lucide-react";
 
 import { DocumentConditionsDialog } from "@/components/dashboard/document-conditions-dialog";
 import { JobStatusBadge } from "@/components/dashboard/job-status-badge";
 import { LcSelectorDropdown } from "@/components/dashboard/lc-selector-dropdown";
-import { ParsedFieldsGrid } from "@/components/dashboard/parsed-fields-grid";
+import { DocumentUnderstandingPanel } from "@/components/dashboard/document-understanding-panel";
 import { Button } from "@/components/ui/button";
 import type { LcDocument, RequiredDocument } from "@/lib/api/letter-of-credit";
+import { uploadAirwayBill } from "@/lib/api/airway-bill";
+import { uploadBeneficiaryCertificate } from "@/lib/api/beneficiary-certificate";
+import { uploadBeneficiaryCertificateQualityQuantity } from "@/lib/api/beneficiary-certificate-quality-quantity";
 import { uploadBillOfLading } from "@/lib/api/bill-of-lading";
+import { uploadCertificateOfOrigin } from "@/lib/api/certificate-of-origin";
 import { uploadCommercialInvoice } from "@/lib/api/commercial-invoice";
+import { uploadInsurancePolicyOrCertificate } from "@/lib/api/insurance-policy-or-certificate";
 import { uploadPackagingList } from "@/lib/api/packaging-list";
 import {
   isUploadableTradeDocument,
@@ -28,20 +33,30 @@ import {
   type DiscrepancyCheck,
   type DiscrepancyDisplay,
 } from "@/lib/dashboard/generated-documents";
+import { organizeDocumentUnderstanding } from "@/lib/dashboard/understanding-fields";
 import { useDocumentUpload } from "@/lib/dashboard/use-document-upload";
 import { cn } from "@/lib/utils";
 
 type InsightView = "parsed" | "discrepancy";
 
-const UPLOAD_BY_TYPE: Partial<
-  Record<
-    TradeDocumentType,
-    { upload: (lcId: string, file: File) => Promise<string | undefined>; label: string }
-  >
+const UPLOAD_BY_TYPE: Record<
+  TradeDocumentType,
+  { upload: (lcId: string, file: File) => Promise<string | undefined>; label: string }
 > = {
   commercial_invoice: { upload: uploadCommercialInvoice, label: "commercial invoice" },
   packaging_list: { upload: uploadPackagingList, label: "packing list" },
   bill_of_lading: { upload: uploadBillOfLading, label: "bill of lading" },
+  air_waybill: { upload: uploadAirwayBill, label: "airway bill" },
+  certificate_of_origin: { upload: uploadCertificateOfOrigin, label: "certificate of origin" },
+  beneficiary_certificate: { upload: uploadBeneficiaryCertificate, label: "beneficiary's certificate" },
+  beneficiary_certificate_of_quality_and_quantity: {
+    upload: uploadBeneficiaryCertificateQualityQuantity,
+    label: "beneficiary's certificate of quality and quantity",
+  },
+  insurance_policy_or_certificate: {
+    upload: uploadInsurancePolicyOrCertificate,
+    label: "insurance policy or certificate",
+  },
 };
 
 const CHECK_TABS: { id: CheckCategory; label: string; tone: "pass" | "warn" | "error" | "other" }[] = [
@@ -168,9 +183,10 @@ export function DocumentInsightCards({
   const generatedDoc = focusDoc
     ? findGeneratedForRequired(focusDoc, lc.generatedDocuments)
     : null;
-  const parsedFields = generatedDoc
-    ? formatParsedDataForDisplay(generatedDoc.parsedData)
-    : {};
+  const organizedFields = useMemo(() => {
+    if (!generatedDoc) return { sections: [] };
+    return organizeDocumentUnderstanding(formatParsedDataForDisplay(generatedDoc.parsedData));
+  }, [generatedDoc]);
   const discrepancy = generatedDoc
     ? parseDiscrepancyData(generatedDoc.discrepancyData)
     : null;
@@ -219,14 +235,11 @@ export function DocumentInsightCards({
       <section className="dashboard-summary-cards">
         <article className="dashboard-summary-card ui-card">
           <div className="ui-card-header ui-card-header--stacked">
-            <div className="flex items-center gap-2">
-              <h2 className="ui-card-title">
-                {view === "parsed"
-                  ? `What we understand from this ${focusDoc?.normalized ?? "document"}`
-                  : "Cross-checking result with LC"}
-              </h2>
-              <InfoIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-            </div>
+            <h2 className="ui-card-title">
+              {view === "parsed"
+                ? `What we understand from this ${focusDoc?.normalized ?? "document"}`
+                : "Cross-checking result with LC"}
+            </h2>
             <span className="dashboard-summary-card__subtitle">{lc.lcNumber}</span>
           </div>
 
@@ -263,13 +276,10 @@ export function DocumentInsightCards({
 
           <div className="dashboard-summary-card__body">
             {view === "parsed" ? (
-              Object.keys(parsedFields).length > 0 ? (
-                <ParsedFieldsGrid fields={parsedFields} />
-              ) : (
-                <p className="dashboard-summary-card__empty">
-                  Upload this document to extract details and view them here.
-                </p>
-              )
+              <DocumentUnderstandingPanel
+                organized={organizedFields}
+                emptyMessage="Upload this document to extract details and view them here."
+              />
             ) : hasDiscrepancyData && discrepancy ? (
               <CrossCheckPanel discrepancy={discrepancy} />
             ) : (
@@ -283,10 +293,7 @@ export function DocumentInsightCards({
         <article className="dashboard-summary-card ui-card">
           <div className="ui-card-header lc-uploaded-table__header">
             <div className="min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="ui-card-title">Documents required under this LC</h2>
-                <InfoIcon className="size-4 text-muted-foreground" aria-hidden="true" />
-              </div>
+              <h2 className="ui-card-title">Documents required under this LC</h2>
               <span className="dashboard-summary-card__subtitle">{lc.lcNumber}</span>
             </div>
             <LcSelectorDropdown

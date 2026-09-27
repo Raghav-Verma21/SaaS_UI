@@ -46,6 +46,7 @@ export interface LCDocumentListItem {
   expiryDate?: string;
   issueDate?: string;
   lastShipmentDate?: string;
+  lcCreatedAt?: string;
   requiredDocuments?: RequiredDocumentApiItem[];
   generatedDocuments?: GeneratedDocumentApiItem[];
   semanticFieldsData?: Record<string, string>;
@@ -71,6 +72,7 @@ export interface LcTableRow {
   issueDate: string;
   expiryDate: string;
   lastShipmentDate: string;
+  lcCreatedAt: string;
   jobStatus: string;
   status: LcTableStatus;
   requiredDocuments: RequiredDocument[];
@@ -80,10 +82,9 @@ export interface LcTableRow {
 
 export type LcDocument = LcTableRow;
 
-export function getCompanyLetterOfCredits(companyId: string, limit: number | null = null) {
+export function getCompanyLetterOfCredits(companyId: string) {
   return api.get<LCDocumentListResponse>(API_ENDPOINTS.COMPANY_LETTER_OF_CREDIT, {
     pathParams: { companyId },
-    queryParams: { limit },
   });
 }
 

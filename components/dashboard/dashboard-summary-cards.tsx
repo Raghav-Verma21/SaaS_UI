@@ -8,6 +8,7 @@ import type { LcDocument, RequiredDocument } from "@/lib/api/letter-of-credit";
 
 interface DashboardSummaryCardsProps {
   selectedLc: LcDocument | null;
+  companyId: string | null;
 }
 
 function DetailsButton({
@@ -28,7 +29,7 @@ function DetailsButton({
   );
 }
 
-export function DashboardSummaryCards({ selectedLc }: DashboardSummaryCardsProps) {
+export function DashboardSummaryCards({ selectedLc, companyId }: DashboardSummaryCardsProps) {
   const [activeDocument, setActiveDocument] = useState<RequiredDocument | null>(null);
   const requiredDocuments = selectedLc?.requiredDocuments ?? [];
 
@@ -106,7 +107,7 @@ export function DashboardSummaryCards({ selectedLc }: DashboardSummaryCardsProps
             </>
           )}
         </article>
-        <ComplianceReportCard selectedLc={selectedLc} />
+        <ComplianceReportCard selectedLc={selectedLc} companyId={companyId} />
       </section>
 
       <DocumentConditionsDialog

@@ -1,71 +1,83 @@
 "use client";
 
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { ApiError } from "@/lib/api";
 import type { LcDocument } from "@/lib/api/letter-of-credit";
-import { fetchCompanyLetterOfCredits } from "@/lib/dashboard/lc-documents";
+import {
+  fetchCompanyLetterOfCredits,
+  pickRecentLetterOfCredits,
+} from "@/lib/dashboard/lc-documents";
 import { resolveJobStatusRaw } from "@/lib/dashboard/job-status";
 import { useJobStatusPolling } from "@/lib/dashboard/use-job-status-polling";
+import { lcQueryKeys } from "@/lib/query/lc-query-keys";
 
-export function useCompanyLcs(companyId: string | null, limit: number | null = null) {
-  const [documents, setDocuments] = useState<LcDocument[]>([]);
+const EMPTY_LCS: LcDocument[] = [];
+
+export function useCompanyLcs(companyId: string | null, recentLimit: number | null = null) {
+  const queryClient = useQueryClient();
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [refreshKey, setRefreshKey] = useState(0);
+
+  const {
+    data,
+    isPending,
+    error: queryError,
+  } = useQuery({
+    queryKey: lcQueryKeys.company(companyId ?? ""),
+    queryFn: () => fetchCompanyLetterOfCredits(companyId!),
+    enabled: Boolean(companyId),
+  });
+
+  const allDocuments = data ?? EMPTY_LCS;
+
+  const documents = useMemo(
+    () =>
+      recentLimit != null
+        ? pickRecentLetterOfCredits(allDocuments, recentLimit)
+        : allDocuments,
+    [allDocuments, recentLimit]
+  );
+
+  const error = !companyId
+    ? "Company information is missing. Please log in again."
+    : queryError
+      ? queryError instanceof ApiError
+        ? queryError.message
+        : "Unable to load Letters of Credit."
+      : null;
+
+  useEffect(() => {
+    if (!documents.length) {
+      setSelectedId(null);
+      return;
+    }
+    setSelectedId((id) =>
+      id && documents.some((d) => d.id === id) ? id : (documents[0]?.id ?? null)
+    );
+  }, [documents]);
 
   const refreshAsync = useCallback(async () => {
     if (!companyId) return [] as LcDocument[];
-    const docs = await fetchCompanyLetterOfCredits(companyId, limit);
-    setDocuments(docs);
-    setError(null);
-    setSelectedId((id) => (id && docs.some((d) => d.id === id) ? id : (docs[0]?.id ?? null)));
-    return docs;
-  }, [companyId, limit]);
+    return queryClient.fetchQuery({
+      queryKey: lcQueryKeys.company(companyId),
+      queryFn: () => fetchCompanyLetterOfCredits(companyId),
+    });
+  }, [companyId, queryClient]);
+
+  const refresh = useCallback(() => {
+    if (!companyId) return;
+    void queryClient.invalidateQueries({ queryKey: lcQueryKeys.company(companyId) });
+  }, [companyId, queryClient]);
 
   const { overrides, pollLcStatus, pollDocStatus } = useJobStatusPolling(
     companyId,
     refreshAsync
   );
 
-  useEffect(() => {
-    if (!companyId) {
-      setError("Company information is missing. Please log in again.");
-      setIsLoading(false);
-      return;
-    }
-
-    let active = true;
-    setIsLoading(true);
-
-    fetchCompanyLetterOfCredits(companyId, limit)
-      .then((docs) => {
-        if (!active) return;
-        setDocuments(docs);
-        setError(null);
-        setSelectedId((id) =>
-          id && docs.some((d) => d.id === id) ? id : (docs[0]?.id ?? null)
-        );
-      })
-      .catch((err) => {
-        if (!active) return;
-        setError(
-          err instanceof ApiError ? err.message : "Unable to load Letters of Credit."
-        );
-        setDocuments([]);
-        setSelectedId(null);
-      })
-      .finally(() => active && setIsLoading(false));
-
-    return () => {
-      active = false;
-    };
-  }, [companyId, limit, refreshKey]);
-
   const selectedLc = useMemo(
-    () => documents.find((d) => d.id === selectedId) ?? null,
-    [documents, selectedId]
+    () => allDocuments.find((d) => d.id === selectedId) ?? null,
+    [allDocuments, selectedId]
   );
 
   const resolveLcJobStatus = useCallback(
@@ -81,7 +93,7 @@ export function useCompanyLcs(companyId: string | null, limit: number | null = n
 
   const handleLcUploadComplete = useCallback(async () => {
     const docs = await refreshAsync();
-    const lcId = docs[0]?.id;
+    const lcId = pickRecentLetterOfCredits(docs, 1)[0]?.id;
     if (lcId) await pollLcStatus(lcId);
   }, [pollLcStatus, refreshAsync]);
 
@@ -98,9 +110,9 @@ export function useCompanyLcs(companyId: string | null, limit: number | null = n
     selectedLc,
     selectedId,
     setSelectedId,
-    isLoading,
+    isLoading: isPending && data === undefined,
     error,
-    refresh: () => setRefreshKey((k) => k + 1),
+    refresh,
     refreshAsync,
     pollLcStatus,
     pollDocStatus,

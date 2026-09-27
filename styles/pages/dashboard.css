@@ -189,52 +189,44 @@
   @apply flex h-full w-full min-w-0 flex-1 flex-col;
 }
 
-.dashboard-compliance-report__main {
-  @apply flex flex-1 flex-col gap-6 md:flex-row md:items-stretch;
+.dashboard-compliance-report__stats {
+  @apply grid-cols-5 gap-1.5;
 }
 
-.dashboard-compliance-report__metrics {
-  @apply flex w-full min-w-0 flex-col md:w-3/4;
+.dashboard-compliance-report__stat {
+  @apply min-h-0 min-w-0 rounded-xl px-2 py-1.5;
 }
 
-.dashboard-compliance-report__metric {
-  @apply flex items-center justify-between gap-4 border-b border-border py-4 first:pt-0 last:border-b-0;
+.dashboard-compliance-report__stat-value {
+  @apply text-lg font-bold leading-none;
 }
 
-.dashboard-compliance-report__metric-label {
-  @apply text-sm font-semibold;
-}
-
-.dashboard-compliance-report__metric-label--discrepancy {
-  @apply text-red-600;
-}
-
-.dashboard-compliance-report__metric-label--warning {
-  @apply text-amber-600;
-}
-
-.dashboard-compliance-report__metric-value {
-  @apply text-2xl font-bold tabular-nums;
-}
-
-.dashboard-compliance-report__metric-value--discrepancy {
-  @apply text-red-600;
-}
-
-.dashboard-compliance-report__metric-value--warning {
-  @apply text-amber-600;
+.dashboard-compliance-report__stat .reports-stat__label {
+  @apply mt-1 text-[10px] font-semibold leading-tight break-words;
 }
 
 .dashboard-compliance-report__footer {
-  @apply mt-6 border-t border-border pt-5;
+  @apply mt-6 flex flex-col items-stretch gap-3 border-t border-border pt-5 sm:flex-row sm:items-center sm:justify-between;
+}
+
+.dashboard-compliance-report__view-link {
+  @apply text-center text-sm font-semibold text-brand-blue underline-offset-4 transition-colors hover:text-brand-blue/80 hover:underline;
 }
 
 .dashboard-compliance-report__chart-panel {
-  @apply flex w-full min-w-0 flex-col items-center border-t border-border pt-6 md:w-1/4 md:border-t-0 md:border-l md:pt-0 md:pl-6;
+  @apply flex w-full min-w-0 flex-col items-center border-t border-border pt-6;
+}
+
+.dashboard-compliance-report__chart-panel--inline {
+  @apply mt-4;
 }
 
 .dashboard-compliance-report__chart-title {
   @apply w-full text-center text-sm font-semibold text-navy;
+}
+
+.dashboard-compliance-donut-wrap {
+  @apply flex flex-col items-center;
 }
 
 .dashboard-compliance-donut {
@@ -254,7 +246,7 @@
 }
 
 .dashboard-compliance-donut__status {
-  @apply text-xs font-medium;
+  @apply mt-3 text-sm font-semibold;
 }
 
 .dashboard-compliance-report__recommendation {
@@ -592,6 +584,66 @@
   @apply mt-1 text-xs font-semibold text-brand-blue hover:underline;
 }
 
+.understanding-panel__intro {
+  @apply mb-4 text-sm leading-relaxed text-muted-foreground;
+}
+
+.understanding-sections {
+  @apply flex flex-col gap-3;
+}
+
+.understanding-section {
+  @apply overflow-hidden rounded-xl border border-border bg-brand-surface/30;
+}
+
+.understanding-section__trigger {
+  @apply flex w-full items-center gap-3 px-4 py-3.5 text-left transition-colors hover:bg-brand-light/40;
+}
+
+.understanding-section__title {
+  @apply text-sm font-semibold text-navy;
+}
+
+.understanding-section__meta {
+  @apply ml-auto rounded-full bg-white px-2 py-0.5 text-[11px] font-semibold text-muted-foreground ring-1 ring-border;
+}
+
+.understanding-section__chevron {
+  @apply shrink-0 text-muted-foreground transition-transform;
+}
+
+.understanding-section--open .understanding-section__chevron {
+  @apply rotate-180 text-brand-blue;
+}
+
+.understanding-section--open {
+  @apply border-brand-blue/25 bg-white shadow-sm;
+}
+
+.understanding-section__body {
+  @apply flex flex-col divide-y divide-border/80 border-t border-border bg-brand-surface/20 px-4 py-1;
+}
+
+.understanding-field-row {
+  @apply py-3 first:pt-3 last:pb-3;
+}
+
+.understanding-field-row__label {
+  @apply text-xs font-semibold uppercase tracking-wide text-muted-foreground;
+}
+
+.understanding-field-row__value {
+  @apply mt-1 text-sm font-medium leading-relaxed wrap-break-word whitespace-pre-line text-navy;
+}
+
+.understanding-field-row__value--clamp {
+  @apply line-clamp-3;
+}
+
+.understanding-field-row__more {
+  @apply mt-1.5 text-xs font-semibold text-brand-blue hover:underline;
+}
+
 .doc-insight-toggle-bar {
   @apply border-b border-border px-4 py-3 sm:px-5 lg:px-6;
 }
@@ -772,6 +824,304 @@
   @apply text-sm leading-relaxed text-muted-foreground sm:text-base;
 }
 
+.help-page {
+  @apply flex w-full justify-center px-4 py-8 sm:px-6 sm:py-10;
+}
+
+.help-page__center {
+  @apply flex w-full max-w-6xl flex-col gap-6;
+}
+
+.help-page__grid {
+  @apply grid grid-cols-1 items-stretch gap-6 lg:grid-cols-2 lg:gap-8;
+}
+
+.help-page__card {
+  @apply flex h-full min-w-0 flex-col overflow-hidden border border-border/80 shadow-lg;
+}
+
+.help-page__card-head {
+  @apply flex flex-col gap-4 border-b border-border bg-gradient-to-br from-brand-light via-white to-white px-6 py-6 lg:px-8 lg:py-7;
+}
+
+.help-page__icon-wrap {
+  @apply flex size-14 shrink-0 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue;
+}
+
+.help-page__eyebrow {
+  @apply text-xs font-semibold uppercase tracking-wide text-brand-blue;
+}
+
+.help-page__title {
+  @apply mt-1 text-xl font-bold text-navy lg:text-2xl;
+}
+
+.help-page__lead {
+  @apply mt-2 text-sm leading-relaxed text-muted-foreground;
+}
+
+.help-page__contact-pill {
+  @apply inline-flex w-fit items-center gap-2 self-start rounded-full border border-brand-blue/20 bg-white px-4 py-2 text-sm font-medium text-navy shadow-sm;
+}
+
+.help-page__body {
+  @apply flex flex-1 flex-col gap-5 px-6 py-6 lg:px-8 lg:py-7;
+}
+
+.help-page__field {
+  @apply flex flex-col gap-2;
+}
+
+.help-page__textarea,
+.ui-textarea {
+  @apply min-h-[14rem] w-full resize-y rounded-xl border border-input bg-background px-4 py-3 text-base text-foreground transition-colors placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-2 focus-visible:ring-ring/20 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.help-page__send-block {
+  @apply rounded-2xl border border-border bg-brand-surface/40 p-4 sm:p-5;
+}
+
+.help-page__send-label {
+  @apply mb-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground;
+}
+
+.help-page__actions {
+  @apply grid grid-cols-1 gap-2;
+}
+
+.help-page__action-primary {
+  @apply w-full;
+}
+
+.help-page__footnote {
+  @apply text-center text-xs leading-relaxed text-muted-foreground sm:text-sm;
+}
+
+.help-page__quick-links {
+  @apply grid grid-cols-1 gap-3 sm:grid-cols-3;
+}
+
+.help-page__quick-link {
+  @apply flex flex-col gap-1 rounded-2xl border border-border bg-white px-4 py-4 transition-colors hover:border-brand-blue/30 hover:bg-brand-light/40;
+}
+
+.help-page__quick-link-icon {
+  @apply text-brand-blue;
+}
+
+.help-page__quick-link-title {
+  @apply text-sm font-semibold text-navy;
+}
+
+.help-page__quick-link-desc {
+  @apply text-xs leading-relaxed text-muted-foreground;
+}
+
+.help-page__faq {
+  @apply flex h-full min-w-0 flex-col overflow-hidden border border-border/80 px-6 py-6 shadow-lg lg:px-8 lg:py-7;
+}
+
+.help-page__faq-head {
+  @apply mb-4 flex gap-4 border-b border-border pb-5;
+}
+
+.help-page__faq-icon-wrap {
+  @apply flex size-12 shrink-0 items-center justify-center rounded-2xl bg-brand-blue/10 text-brand-blue;
+}
+
+.help-page__faq-title {
+  @apply text-xl font-bold text-navy;
+}
+
+.help-page__faq-lead {
+  @apply mt-1 text-sm leading-relaxed text-muted-foreground;
+}
+
+.help-page__accordion {
+  @apply w-full flex-1;
+}
+
+.help-page__accordion-item {
+  @apply cursor-default border-border transition-colors hover:bg-brand-light/30;
+}
+
+.help-page__accordion-trigger {
+  @apply py-4 hover:no-underline lg:py-5;
+}
+
+.help-page__accordion-trigger-text {
+  @apply flex min-w-0 flex-1 flex-col items-start gap-1.5 pr-2 text-left;
+}
+
+.help-page__accordion-step {
+  @apply rounded-md bg-brand-light px-2 py-0.5 text-xs font-bold text-brand-blue;
+}
+
+.help-page__accordion-question {
+  @apply text-sm font-semibold leading-snug text-navy;
+}
+
+.help-page__accordion-content {
+  @apply pb-4 pl-0 text-sm leading-relaxed;
+}
+
+.reports-page {
+  @apply flex w-full min-w-0 flex-col gap-4 sm:gap-6;
+}
+
+.reports-page__intro {
+  @apply min-w-0;
+}
+
+.reports-page__subtitle {
+  @apply text-sm leading-relaxed text-muted-foreground sm:text-base;
+}
+
+.reports-card__body {
+  @apply gap-5;
+}
+
+.reports-stats {
+  @apply grid min-w-0 grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-5;
+}
+
+.reports-stat {
+  @apply flex min-h-[5.5rem] min-w-0 w-full flex-col items-start justify-center rounded-2xl border px-4 py-3 text-left transition-all hover:shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-blue/30;
+}
+
+.reports-stat__value {
+  @apply text-3xl font-bold tabular-nums leading-none sm:text-4xl;
+}
+
+.reports-stat__label {
+  @apply mt-2 min-w-0 w-full break-words text-sm font-semibold leading-snug;
+}
+
+.reports-stat--error {
+  @apply border-red-200 bg-red-50/80;
+}
+
+.reports-stat--error .reports-stat__value,
+.reports-stat--error .reports-stat__label {
+  @apply text-red-700;
+}
+
+.reports-stat--warn {
+  @apply border-amber-200 bg-amber-50/80;
+}
+
+.reports-stat--warn .reports-stat__value,
+.reports-stat--warn .reports-stat__label {
+  @apply text-amber-800;
+}
+
+.reports-stat--pass {
+  @apply border-green-200 bg-green-50/80;
+}
+
+.reports-stat--pass .reports-stat__value,
+.reports-stat--pass .reports-stat__label {
+  @apply text-green-700;
+}
+
+.reports-stat--other {
+  @apply border-slate-200 bg-slate-50/80;
+}
+
+.reports-stat--other .reports-stat__value,
+.reports-stat--other .reports-stat__label {
+  @apply text-slate-700;
+}
+
+.reports-stat--active {
+  @apply ring-2 ring-brand-blue/25 shadow-sm;
+}
+
+.reports-stat--total {
+  @apply border-brand-blue/30 bg-brand-light/70;
+}
+
+.reports-stat--total .reports-stat__value,
+.reports-stat--total .reports-stat__label {
+  @apply text-brand-blue;
+}
+
+.dashboard-compliance-report__stats.reports-stats {
+  @apply grid-cols-5;
+}
+
+.dashboard-compliance-report__stat.reports-stat {
+  @apply min-h-0;
+}
+
+.reports-download {
+  @apply flex shrink-0 flex-col items-center justify-center gap-2 rounded-2xl border border-brand-blue/20 bg-brand-light px-5 py-4 text-brand-blue transition-colors hover:bg-brand-light/80 disabled:cursor-not-allowed disabled:opacity-50 lg:min-w-[7.5rem];
+}
+
+.reports-download__label {
+  @apply text-xs font-semibold;
+}
+
+.reports-footer {
+  @apply flex justify-end border-t border-border pt-5;
+}
+
+.reports-table-wrap {
+  @apply rounded-xl border-0;
+}
+
+.reports-doc-groups {
+  @apply flex flex-col gap-4;
+}
+
+.reports-doc-group {
+  @apply overflow-hidden rounded-xl border border-border;
+}
+
+.reports-doc-group__header {
+  @apply flex flex-wrap items-center justify-between gap-2 border-b border-border bg-brand-surface/50 px-4 py-3;
+}
+
+.reports-doc-group__title {
+  @apply text-sm font-semibold text-navy;
+}
+
+.reports-doc-group__meta {
+  @apply text-xs font-medium text-muted-foreground;
+}
+
+.reports-table {
+  @apply min-w-[44rem];
+}
+
+.reports-table__doc {
+  @apply min-w-[10rem] text-left font-medium text-navy;
+}
+
+.reports-table__reason {
+  @apply min-w-[12rem] text-left;
+}
+
+.reports-table__severity {
+  @apply uppercase;
+}
+
+.reports-table__row--pass {
+  @apply border-l-[3px] border-l-green-400;
+}
+
+.reports-table__row--warn {
+  @apply border-l-[3px] border-l-amber-400;
+}
+
+.reports-table__row--error {
+  @apply border-l-[3px] border-l-red-400;
+}
+
+.reports-table__row--other {
+  @apply border-l-[3px] border-l-slate-400;
+}
+
 .documents-empty-hero {
   @apply flex flex-col items-center rounded-2xl border-2 border-dashed border-brand-blue/30 bg-white px-5 py-10 text-center shadow-sm sm:px-8 sm:py-12;
 }
@@ -794,20 +1144,4 @@
 
 .documents-empty-hero__button {
   @apply mt-6 w-full sm:w-auto;
-}
-
-.documents-security-banner {
-  @apply flex flex-col gap-3 rounded-xl border border-brand-blue/20 bg-brand-light/60 px-4 py-4 sm:flex-row sm:items-center sm:gap-4 sm:px-5;
-}
-
-.documents-security-banner__icon {
-  @apply size-5 shrink-0 text-brand-blue;
-}
-
-.documents-security-banner__text {
-  @apply min-w-0 flex-1 text-sm leading-relaxed text-navy;
-}
-
-.documents-security-banner__link {
-  @apply inline-flex shrink-0 items-center gap-1 text-sm font-semibold text-brand-blue hover:underline;
 }
